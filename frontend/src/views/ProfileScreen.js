@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
@@ -18,7 +17,7 @@ const ProfileScreen = ({ location, history }) => {
  const userDetails = useSelector((state) => state.userRegister);
  const { loading, error, user } = userDetails;
  
- const userLogin = useSelector((state) => state.userRegister);
+ const userLogin = useSelector((state) => state.userLogin);
  const { userInfo } = userLogin;
 
   const userUpdateProfile = useSelector((state) => state.userUpdateProfile);
@@ -30,7 +29,7 @@ const ProfileScreen = ({ location, history }) => {
   if (!userInfo) {
    history.push('/login');
   } else {
-      if (!user.name) {
+      if (!user || user.name || success) {
           dispatch(getUserDetails('profile'))
       } else {
           if (user) {
