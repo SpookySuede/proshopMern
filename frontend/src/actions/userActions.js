@@ -136,7 +136,7 @@ export const updateUserProfile = (user) => async (dispatch, getState) => {
   });
 
   const {
-   userLogin: { userInfo }
+   userLogin: { userInfo },
   } = getState();
 
   const config = {
@@ -158,16 +158,12 @@ export const updateUserProfile = (user) => async (dispatch, getState) => {
   });
   localStorage.setItem('userInfo', JSON.stringify(data));
  } catch (error) {
-  const message =
-   error.response && error.response.data.message
-    ? error.response.data.message
-    : error.message;
-  if (message === 'Not authorized, token failed') {
-   dispatch(logout());
-  }
   dispatch({
    type: USER_UPDATE_PROFILE_FAILED,
-   payload: message,
+   payload: 
+      error.response && error.response.data.message
+      ? error.response.data.message
+      : error.message,
   });
  }
 };
