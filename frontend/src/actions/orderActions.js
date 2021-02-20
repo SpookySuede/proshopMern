@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { CART_CLEAR_ITEMS } from '../constants/cartConstants'
 import {
  CREATE_ORDER_FAILED,
  CREATE_ORDER_SUCCESS,
@@ -9,6 +10,9 @@ import {
  PAY_ORDER_FAILED,
  PAY_ORDER_SUCCESS,
  PAY_ORDER_REQUEST,
+ LIST_USER_ORDERS_REQUEST,
+ LIST_USER_ORDERS_SUCCESS,
+ LIST_USER_ORDERS_FAILED,
 } from '../constants/orderconstants';
 
 export const createOrder = (order) => async (dispatch, getState) => {
@@ -34,6 +38,12 @@ export const createOrder = (order) => async (dispatch, getState) => {
    type: CREATE_ORDER_SUCCESS,
    payload: data,
   });
+
+  dispatch({
+   type: CART_CLEAR_ITEMS,
+   payload: data,
+ })
+ localStorage.removeItem('cartItems');
   
  } catch (error) {
   dispatch({
@@ -97,7 +107,7 @@ export const payOrder = (orderId, paymentResult) => async (dispatch, getState) =
    },
   };
 
-  const { data } = await axios.get(`/api/orders/${orderId}/pay`, paymentResult, config);
+  const { data } = await axios.put(`/api/orders/${orderId}/pay`, paymentResult, config);
 
   dispatch({
    type: PAY_ORDER_SUCCESS,
@@ -107,6 +117,43 @@ export const payOrder = (orderId, paymentResult) => async (dispatch, getState) =
  } catch (error) {
   dispatch({
    type: PAY_ORDER_FAILED,
+   payload:
+    error.response && error.response.data.message
+     ? error.response.data.message
+     : error.message,
+  });
+ }
+};
+
+export const listUserOrders = () => async (
+   dispatch, 
+   getState
+   ) => {
+ try {
+  dispatch({
+   type: LIST_USER_ORDERS_REQUEST,
+  });
+
+  const {
+   userLogin: { userInfo },
+  } = getState();
+
+  const config = {
+   headers: {
+    Authorization: `Bearer ${userInfo.token}`,
+   },
+  };
+
+  const { data } = await axios.get(`/api/orders/myorders`, config);
+
+  dispatch({
+   type: LIST_USER_ORDERS_SUCCESS,
+   payload: data,
+  });
+  
+ } catch (error) {
+  dispatch({
+   type: LIST_USER_ORDERS_FAILED,
    payload:
     error.response && error.response.data.message
      ? error.response.data.message
